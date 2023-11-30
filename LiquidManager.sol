@@ -30,6 +30,7 @@ contract LiquidityExamples is IERC721Receiver {
     }
 
     address pool;
+    uint256 strike;
 
     /// @dev deposits[tokenId] => Deposit
     mapping(uint256 => Deposit) public deposits;
@@ -85,17 +86,53 @@ contract LiquidityExamples is IERC721Receiver {
     /// @return amount0 The amount of token0
     /// @return amount1 The amount of token1
 
+    function putOrCall(
+        bool _putOrCall,
+        address _token1,
+        address _token2,
+        uint256 _amount0ToMint,
+        uint256 _amount1ToMint,
+        uint256 _poolFee,
+        uint256 _price
+    ) public {
+        strike = _price;
+        if (_putOrCall) {
+            // true - call, false - put
+            _lowerTick = currentTick - 1;
+            mintNewPosition(
+                _token1,
+                _token2,
+                _amount0ToMint,
+                _amount1ToMint,
+                _poolFee,
+                _lowerTick,
+                _price
+            );
+        } else {
+            _upperTick = currentTick + 1;
+            mintNewPosition(
+                _token1,
+                _token2,
+                _amount0ToMint,
+                _amount1ToMint,
+                _poolFee,
+                _price,
+                _upperTick
+            );
+        }
+    }
+
     function mintNewPosition(
         address _token1,
         address _token2,
         uint256 _amount0ToMint,
         uint256 _amount1ToMint,
-        uint256 _poolFee
+        uint256 _poolFee,
+        int24 _lowerTick,
+        int24 _upperTick
     )
         external
         returns (
-            // int24 _lowerTick, под попросом
-            // int24 _upperTick
             uint256 tokenId,
             uint128 liquidity,
             uint256 amount0,
@@ -105,6 +142,7 @@ contract LiquidityExamples is IERC721Receiver {
         // For this example, we will provide equal amounts of liquidity in both assets.
         // Providing liquidity in both assets means liquidity will be earning fees and is considered in-range.
         // transfer tokens to contract
+
         TransferHelper.safeTransferFrom(
             _token1,
             msg.sender,
@@ -208,7 +246,11 @@ contract LiquidityExamples is IERC721Receiver {
         uint256 tokenId
     ) internal returns (uint256 amount0, uint256 amount1) {
         // caller must be the owner of the NFT
-        require((msg.sender == deposits[tokenId].owner, "Not the owner"));
+        require(
+            (msg.sender == deposits[tokenId].owner, "Not the owner") ||
+                (currentTick >= strike, ) ||
+                (currentTick <= strike, )
+        );
         // get liquidity data for tokenId
         uint128 liquidity = deposits[tokenId].liquidity;
 
@@ -330,4 +372,24 @@ contract LiquidityExamples is IERC721Receiver {
 
         pool = PoolAddress.computeAddress(factory, key);
     }
+
+    // function takepooladdress()
+    //     public
+    //     pure
+    //     returns (uint160 sqrtPriceX96, int24 currentTick)
+    // {
+    //     address token0 = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    //     address token1 = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+    //     uint24 fee = 500;
+    //     address factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+
+    //     PoolAddress.PoolKey memory key = PoolAddress.getPoolKey(
+    //         token0,
+    //         token1,
+    //         fee
+    //     );
+
+    //     UniswapV3Pool pool = PoolAddress.computeAddress(factory, key);
+    //     (sqrtPriceX96, currentTick, , , , , ) = pool.slot0();
+    // }
 }
