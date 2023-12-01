@@ -234,8 +234,8 @@ contract LiquidityExamples is IERC721Receiver {
 
     function _decreaseLiquidity(
         uint256 tokenId
-    ) internal returns (uint256 amount0, uint256 amount1) {
-
+    ) internal returns (uint256 amount0, uint256 amount1, uint _strike, uint24 _currentTick) {
+        checkPositionForClosure(_strike,  _currentTick);
         require(
             (msg.sender == deposits[tokenId].owner, "Not the owner") || (closeposition = AllowToClosePosition.OPEN)
         );
