@@ -8,6 +8,7 @@ import '../lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol
 import '../lib/v3-periphery/contracts/libraries/TransferHelper.sol';
 import '../lib/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
 import '../lib/v3-periphery/contracts/base/LiquidityManagement.sol';
+import '../lib/v3-periphery/contracts/libraries/PoolAddress.sol';
 
 contract LiquidityExamples is IERC721Receiver {
     // address public constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
@@ -25,11 +26,6 @@ contract LiquidityExamples is IERC721Receiver {
         address token1;
     }
 
-    struct PoolKey {
-        address token0;
-        address token1;
-        uint24 fee;
-    }
 
     enum Position {
         BUY,
@@ -232,7 +228,7 @@ contract LiquidityExamples is IERC721Receiver {
         _sendToOwner(tokenId, amount0, amount1);
     }
 
-    function checkPositionForClosure(uint _strike, uint24 _currentTick) internal {
+    function checkPositionForClosure(int24 _strike, int24 _currentTick) internal {
         if((position == Position.BUY && _strike <= _currentTick) || (position == Position.SELL && _strike >= _currentTick)) {
         closeposition = AllowToClosePosition.OPEN;
         }
@@ -240,10 +236,10 @@ contract LiquidityExamples is IERC721Receiver {
 
     function _decreaseLiquidity(
         uint256 tokenId
-    ) internal returns (uint256 amount0, uint256 amount1, uint _strike, uint24 _currentTick) {
+    ) internal returns (uint256 amount0, uint256 amount1, int24 _strike, int24 _currentTick) {
         checkPositionForClosure(_strike,  _currentTick);
         require(
-            (msg.sender == deposits[tokenId].owner, "Not the owner") || (closeposition = AllowToClosePosition.OPEN)
+            msg.sender == deposits[tokenId].owner || closeposition == AllowToClosePosition.OPEN, "Not the owner or position is not opened for termination"
         );
 
         uint128 liquidity = deposits[tokenId].liquidity;
@@ -338,25 +334,24 @@ contract LiquidityExamples is IERC721Receiver {
         delete deposits[tokenId];
     }
 
-
     function takepoolInfo(
         address token0,
         address token1,
         uint24 fee
         )
         public
-        pure
-        returns (uint160 sqrtPriceX96, int24 currentTick, address pool)
+        returns (uint160 sqrtPriceX96, int24 currentTick, address)
     {
         address factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
-        PoolKey memory key = nonfungiblePositionManager.PoolAddress.getPoolKey(
+        PoolAddress.PoolKey memory key = PoolAddress.getPoolKey(
             token0,
             token1,
             fee
         );
 
-        pool = nonfungiblePositionManager.PoolAddress.computeAddress(factory, key);
+        pool = PoolAddress.computeAddress(factory, key);
         (sqrtPriceX96, currentTick, , , , , ) = IUniswapV3Pool(pool).slot0();
+        return (sqrtPriceX96, currentTick, pool);
     }
 }
