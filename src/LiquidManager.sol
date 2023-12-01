@@ -46,7 +46,7 @@ contract LiquidityExamples is IERC721Receiver {
     Position public position;
 
     address pool;
-    uint256 strike;
+    int24 strike;
 
     mapping(uint256 => Deposit) public deposits;
 
@@ -181,8 +181,8 @@ contract LiquidityExamples is IERC721Receiver {
         uint256 _amount0ToMint,
         uint256 _amount1ToMint,
         uint24 _poolFee,
-        uint256 _price,
-        uint24 currentTick
+        int24 _price,
+        int24 currentTick
     ) public {
         strike = _price;
         if (_putOrCall) {
