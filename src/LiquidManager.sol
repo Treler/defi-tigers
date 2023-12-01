@@ -32,13 +32,6 @@ contract LiquidityExamples is IERC721Receiver {
         SELL
     }
 
-    enum AllowToClosePosition {
-        CLOSE,
-        OPEN
-    }
-
-    AllowToClosePosition public closeposition;
-
     Position public position;
 
     address pool;
@@ -183,7 +176,7 @@ contract LiquidityExamples is IERC721Receiver {
         strike = _price;
         if (_putOrCall) {
             // true - call, false - put
-            lowerTick = currentTick - 1; //надо подумать
+            lowerTick = currentTick - 1; //надо подумать проверить от пула изменение тика
             position = Position.BUY;
             mintNewPosition(
                 _token1,
@@ -228,18 +221,17 @@ contract LiquidityExamples is IERC721Receiver {
         _sendToOwner(tokenId, amount0, amount1);
     }
 
-    function checkPositionForClosure(int24 _strike, int24 _currentTick) internal {
+    function checkPositionForClosure(int24 _strike, int24 _currentTick) internal view returns (bool result) {
         if((position == Position.BUY && _strike <= _currentTick) || (position == Position.SELL && _strike >= _currentTick)) {
-        closeposition = AllowToClosePosition.OPEN;
+        return true;
         }
     }
 
     function _decreaseLiquidity(
         uint256 tokenId
     ) internal returns (uint256 amount0, uint256 amount1, int24 _strike, int24 _currentTick) {
-        checkPositionForClosure(_strike,  _currentTick);
         require(
-            msg.sender == deposits[tokenId].owner || closeposition == AllowToClosePosition.OPEN, "Not the owner or position is not opened for termination"
+            msg.sender == deposits[tokenId].owner || checkPositionForClosure(_strike,  _currentTick), "Not the owner or position is not opened for termination"
         );
 
         uint128 liquidity = deposits[tokenId].liquidity;
