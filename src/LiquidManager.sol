@@ -2,22 +2,26 @@
 pragma solidity =0.7.6;
 pragma abicoder v2;
 
-import '../lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
-import '../lib/v3-core/contracts/libraries/TickMath.sol';
-import '../lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol';
-import '../lib/v3-periphery/contracts/libraries/TransferHelper.sol';
-import '../lib/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
-import '../lib/v3-periphery/contracts/base/LiquidityManagement.sol';
-import '../lib/v3-periphery/contracts/libraries/PoolAddress.sol';
+import "../lib/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
+import "../lib/v3-core/contracts/libraries/TickMath.sol";
+import "../lib/openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
+import "../lib/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "../lib/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
+import "../lib/v3-periphery/contracts/base/LiquidityManagement.sol";
+import "../lib/v3-periphery/contracts/libraries/PoolAddress.sol";
+import "../lib/v3-periphery/contracts/NonfungiblePositionManager.sol";
+import {UniswapV3Pool} from "../lib/v3-core/contracts/UniswapV3Pool.sol";
+import "../lib/v3-core/contracts/interfaces/IERC20Minimal.sol";
 
-contract LiquidityExamples is IERC721Receiver {
-    // address public constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    // address public constant USDC = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;
+contract LiquidManager is IERC721Receiver {
+    NonfungiblePositionManager public constant nonfungiblePositionManager =
+        NonfungiblePositionManager(0x1238536071E1c677A632429e3655c799b22cDA52);
 
-    INonfungiblePositionManager public immutable nonfungiblePositionManager;
-
-    int24 lowerTick;
-    int24 upperTick;
+    int24 public _currentTick;
+    int24 public _tickSpacing;
+    address public pool;
+    int24 strike;
+    int24 tick;
 
     struct Deposit {
         address owner;
@@ -26,7 +30,6 @@ contract LiquidityExamples is IERC721Receiver {
         address token1;
     }
 
-
     enum Position {
         BUY,
         SELL
@@ -34,14 +37,8 @@ contract LiquidityExamples is IERC721Receiver {
 
     Position public position;
 
-    address pool;
-    int24 strike;
-
     mapping(uint256 => Deposit) public deposits;
-
-    constructor(INonfungiblePositionManager _nonfungiblePositionManager) {
-        nonfungiblePositionManager = _nonfungiblePositionManager;
-    }
+    mapping(uint256 => int24) public strikes;
 
     function onERC721Received(
         address operator,
@@ -49,9 +46,11 @@ contract LiquidityExamples is IERC721Receiver {
         uint256 tokenId,
         bytes calldata
     ) external override returns (bytes4) {
-
+        require(
+            msg.sender == address(nonfungiblePositionManager),
+            "not a univ3 nft"
+        );
         _createDeposit(operator, tokenId);
-
         return this.onERC721Received.selector;
     }
 
@@ -70,14 +69,14 @@ contract LiquidityExamples is IERC721Receiver {
             ,
 
         ) = nonfungiblePositionManager.positions(tokenId);
-
-
+        // set the owner and data for position
         deposits[tokenId] = Deposit({
             owner: owner,
             liquidity: liquidity,
             token0: token0,
             token1: token1
         });
+        strikes[tokenId] = strike;
     }
 
     function mintNewPosition(
@@ -89,7 +88,7 @@ contract LiquidityExamples is IERC721Receiver {
         int24 _lowerTick,
         int24 _upperTick
     )
-        internal
+        public
         returns (
             uint256 tokenId,
             uint128 liquidity,
@@ -97,7 +96,6 @@ contract LiquidityExamples is IERC721Receiver {
             uint256 amount1
         )
     {
-
         TransferHelper.safeTransferFrom(
             _token1,
             msg.sender,
@@ -170,25 +168,29 @@ contract LiquidityExamples is IERC721Receiver {
         uint256 _amount0ToMint,
         uint256 _amount1ToMint,
         uint24 _poolFee,
-        int24 _price,
-        int24 currentTick
+        int24 _price
     ) public {
+        takePoolInfo(_token1, _token2, _poolFee);
         strike = _price;
         if (_putOrCall) {
             // true - call, false - put
-            lowerTick = currentTick - 1; //надо подумать проверить от пула изменение тика
             position = Position.BUY;
+            tick =
+                ((_currentTick + _tickSpacing) / _tickSpacing) *
+                _tickSpacing;
             mintNewPosition(
                 _token1,
                 _token2,
                 _amount0ToMint,
                 _amount1ToMint,
                 _poolFee,
-                lowerTick,
-                _price //надо подумать
+                tick,
+                strike
             );
         } else {
-            upperTick = currentTick + 1; //надо подумать
+            tick =
+                ((_currentTick - _tickSpacing) / _tickSpacing) *
+                _tickSpacing;
             position = Position.SELL;
             mintNewPosition(
                 _token1,
@@ -196,18 +198,15 @@ contract LiquidityExamples is IERC721Receiver {
                 _amount0ToMint,
                 _amount1ToMint,
                 _poolFee,
-                _price, //надо подумать
-                upperTick
+                strike,
+                tick
             );
         }
     }
 
-
-
     function collectAllFees(
         uint256 tokenId
-    ) external returns (uint256 amount0, uint256 amount1) {
-
+    ) public returns (uint256 amount0, uint256 amount1) {
         INonfungiblePositionManager.CollectParams
             memory params = INonfungiblePositionManager.CollectParams({
                 tokenId: tokenId,
@@ -221,21 +220,33 @@ contract LiquidityExamples is IERC721Receiver {
         _sendToOwner(tokenId, amount0, amount1);
     }
 
-    function checkPositionForClosure(int24 _strike, int24 _currentTick) internal view returns (bool result) {
-        if((position == Position.BUY && _strike <= _currentTick) || (position == Position.SELL && _strike >= _currentTick)) {
-        return true;
+    function checkPositionForClosure(
+        uint256 tokenId,
+        address token0,
+        address token1,
+        uint24 fee
+    ) internal returns (bool result) {
+        takePoolInfo(token0, token1, fee);
+        if ((msg.sender == deposits[tokenId].owner) ||
+            (position == Position.BUY && strikes[tokenId] >= _currentTick) ||
+            (position == Position.SELL && strike <= _currentTick)
+        ) {
+            return true;
         }
     }
 
     function _decreaseLiquidity(
-        uint256 tokenId
-    ) internal returns (uint256 amount0, uint256 amount1, int24 _strike, int24 _currentTick) {
+        uint256 tokenId,
+        address token0,
+        address token1,
+        uint24 fee
+    ) public returns (uint256 amount0, uint256 amount1) {
         require(
-            msg.sender == deposits[tokenId].owner || checkPositionForClosure(_strike,  _currentTick), "Not the owner or position is not opened for termination"
+                checkPositionForClosure(tokenId, token0, token1, fee),
+            "Not the owner or position is not opened for termination"
         );
 
         uint128 liquidity = deposits[tokenId].liquidity;
-
 
         INonfungiblePositionManager.DecreaseLiquidityParams
             memory params = INonfungiblePositionManager
@@ -251,52 +262,8 @@ contract LiquidityExamples is IERC721Receiver {
             params
         );
 
-        _sendToOwner(tokenId, amount0, amount1);
+        collectAllFees(tokenId);
     }
-
-    // function increaseLiquidityCurrentRange(
-    //     uint256 tokenId,
-    //     uint256 amountAdd0,
-    //     uint256 amountAdd1
-    // ) external returns (uint128 liquidity, uint256 amount0, uint256 amount1) {
-    //     TransferHelper.safeTransferFrom(
-    //         deposits[tokenId].token0,
-    //         msg.sender,
-    //         address(this),
-    //         amountAdd0
-    //     );
-    //     TransferHelper.safeTransferFrom(
-    //         deposits[tokenId].token1,
-    //         msg.sender,
-    //         address(this),
-    //         amountAdd1
-    //     );
-
-    //     TransferHelper.safeApprove(
-    //         deposits[tokenId].token0,
-    //         address(nonfungiblePositionManager),
-    //         amountAdd0
-    //     );
-    //     TransferHelper.safeApprove(
-    //         deposits[tokenId].token1,
-    //         address(nonfungiblePositionManager),
-    //         amountAdd1
-    //     );
-
-    //     INonfungiblePositionManager.IncreaseLiquidityParams
-    //         memory params = INonfungiblePositionManager
-    //             .IncreaseLiquidityParams({
-    //                 tokenId: tokenId,
-    //                 amount0Desired: amountAdd0,
-    //                 amount1Desired: amountAdd1,
-    //                 amount0Min: 0,
-    //                 amount1Min: 0,
-    //                 deadline: block.timestamp
-    //             });
-
-    //     (liquidity, amount0, amount1) = nonfungiblePositionManager
-    //         .increaseLiquidity(params);
-    // }
 
     function _sendToOwner(
         uint256 tokenId,
@@ -314,7 +281,6 @@ contract LiquidityExamples is IERC721Receiver {
     }
 
     function retrieveNFT(uint256 tokenId) external {
-
         require(msg.sender == deposits[tokenId].owner, "Not the owner");
 
         nonfungiblePositionManager.safeTransferFrom(
@@ -326,15 +292,8 @@ contract LiquidityExamples is IERC721Receiver {
         delete deposits[tokenId];
     }
 
-    function takepoolInfo(
-        address token0,
-        address token1,
-        uint24 fee
-        )
-        public
-        returns (uint160 sqrtPriceX96, int24 currentTick, address)
-    {
-        address factory = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
+    function takePoolInfo(address token0, address token1, uint24 fee) public {
+        address factory = 0x0227628f3F023bb0B980b67D528571c95c6DaC1c;
 
         PoolAddress.PoolKey memory key = PoolAddress.getPoolKey(
             token0,
@@ -343,7 +302,9 @@ contract LiquidityExamples is IERC721Receiver {
         );
 
         pool = PoolAddress.computeAddress(factory, key);
-        (sqrtPriceX96, currentTick, , , , , ) = IUniswapV3Pool(pool).slot0();
-        return (sqrtPriceX96, currentTick, pool);
+
+        _tickSpacing = IUniswapV3PoolImmutables(pool).tickSpacing();
+        (, tick, , , , , ) = IUniswapV3Pool(pool).slot0();
+        _currentTick = tick;
     }
 }

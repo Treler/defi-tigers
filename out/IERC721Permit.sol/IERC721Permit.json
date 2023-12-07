@@ -851,25 +851,25 @@
   },
   "ast": {
     "absolutePath": "lib/v3-periphery/contracts/interfaces/IERC721Permit.sol",
-    "id": 2030,
+    "id": 52886,
     "exportedSymbols": {
       "IERC165": [
-        11
+        40453
       ],
       "IERC721": [
-        205
+        41945
       ],
       "IERC721Permit": [
-        2029
+        52885
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "45:1414:21",
+    "src": "45:1414:74",
     "nodes": [
       {
-        "id": 1996,
+        "id": 52852,
         "nodeType": "PragmaDirective",
-        "src": "45:24:21",
+        "src": "45:24:74",
         "nodes": [],
         "literals": [
           "solidity",
@@ -879,31 +879,31 @@
         ]
       },
       {
-        "id": 1997,
+        "id": 52853,
         "nodeType": "ImportDirective",
-        "src": "71:58:21",
+        "src": "71:58:74",
         "nodes": [],
         "absolutePath": "lib/openzeppelin-contracts/contracts/token/ERC721/IERC721.sol",
         "file": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
-        "scope": 2030,
-        "sourceUnit": 206,
+        "scope": 52886,
+        "sourceUnit": 41946,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 2029,
+        "id": 52885,
         "nodeType": "ContractDefinition",
-        "src": "255:1203:21",
+        "src": "255:1203:74",
         "nodes": [
           {
-            "id": 2006,
+            "id": 52862,
             "nodeType": "FunctionDefinition",
-            "src": "405:59:21",
+            "src": "405:59:74",
             "nodes": [],
             "documentation": {
-              "id": 2001,
+              "id": 52857,
               "nodeType": "StructuredDocumentation",
-              "src": "296:104:21",
+              "src": "296:104:74",
               "text": "@notice The permit typehash used in the permit signature\n @return The typehash for the permit"
             },
             "functionSelector": "30adf81f",
@@ -912,23 +912,23 @@
             "modifiers": [],
             "name": "PERMIT_TYPEHASH",
             "parameters": {
-              "id": 2002,
+              "id": 52858,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "429:2:21"
+              "src": "429:2:74"
             },
             "returnParameters": {
-              "id": 2005,
+              "id": 52861,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2004,
+                  "id": 52860,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2006,
-                  "src": "455:7:21",
+                  "scope": 52862,
+                  "src": "455:7:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -936,10 +936,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2003,
+                    "id": 52859,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "455:7:21",
+                    "src": "455:7:74",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -948,22 +948,22 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "454:9:21"
+              "src": "454:9:74"
             },
-            "scope": 2029,
+            "scope": 52885,
             "stateMutability": "pure",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 2012,
+            "id": 52868,
             "nodeType": "FunctionDefinition",
-            "src": "610:60:21",
+            "src": "610:60:74",
             "nodes": [],
             "documentation": {
-              "id": 2007,
+              "id": 52863,
               "nodeType": "StructuredDocumentation",
-              "src": "470:135:21",
+              "src": "470:135:74",
               "text": "@notice The domain separator used in the permit signature\n @return The domain seperator used in encoding of permit signature"
             },
             "functionSelector": "3644e515",
@@ -972,23 +972,23 @@
             "modifiers": [],
             "name": "DOMAIN_SEPARATOR",
             "parameters": {
-              "id": 2008,
+              "id": 52864,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "635:2:21"
+              "src": "635:2:74"
             },
             "returnParameters": {
-              "id": 2011,
+              "id": 52867,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2010,
+                  "id": 52866,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2012,
-                  "src": "661:7:21",
+                  "scope": 52868,
+                  "src": "661:7:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -996,10 +996,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2009,
+                    "id": 52865,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "661:7:21",
+                    "src": "661:7:74",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -1008,22 +1008,22 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "660:9:21"
+              "src": "660:9:74"
             },
-            "scope": 2029,
+            "scope": 52885,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 2028,
+            "id": 52884,
             "nodeType": "FunctionDefinition",
-            "src": "1286:170:21",
+            "src": "1286:170:74",
             "nodes": [],
             "documentation": {
-              "id": 2013,
+              "id": 52869,
               "nodeType": "StructuredDocumentation",
-              "src": "676:605:21",
+              "src": "676:605:74",
               "text": "@notice Approve of a specific token ID for spending by spender via signature\n @param spender The account that is being approved\n @param tokenId The ID of the token that is being approved for spending\n @param deadline The deadline timestamp by which the call must be mined for the approve to work\n @param v Must produce valid secp256k1 signature from the holder along with `r` and `s`\n @param r Must produce valid secp256k1 signature from the holder along with `v` and `s`\n @param s Must produce valid secp256k1 signature from the holder along with `r` and `v`"
             },
             "functionSelector": "7ac2ff7b",
@@ -1032,17 +1032,17 @@
             "modifiers": [],
             "name": "permit",
             "parameters": {
-              "id": 2026,
+              "id": 52882,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2015,
+                  "id": 52871,
                   "mutability": "mutable",
                   "name": "spender",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2028,
-                  "src": "1311:15:21",
+                  "scope": 52884,
+                  "src": "1311:15:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1050,10 +1050,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2014,
+                    "id": 52870,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1311:7:21",
+                    "src": "1311:7:74",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -1064,12 +1064,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 2017,
+                  "id": 52873,
                   "mutability": "mutable",
                   "name": "tokenId",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2028,
-                  "src": "1336:15:21",
+                  "scope": 52884,
+                  "src": "1336:15:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1077,10 +1077,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 2016,
+                    "id": 52872,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1336:7:21",
+                    "src": "1336:7:74",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1090,12 +1090,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 2019,
+                  "id": 52875,
                   "mutability": "mutable",
                   "name": "deadline",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2028,
-                  "src": "1361:16:21",
+                  "scope": 52884,
+                  "src": "1361:16:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1103,10 +1103,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 2018,
+                    "id": 52874,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1361:7:21",
+                    "src": "1361:7:74",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -1116,12 +1116,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 2021,
+                  "id": 52877,
                   "mutability": "mutable",
                   "name": "v",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2028,
-                  "src": "1387:7:21",
+                  "scope": 52884,
+                  "src": "1387:7:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1129,10 +1129,10 @@
                     "typeString": "uint8"
                   },
                   "typeName": {
-                    "id": 2020,
+                    "id": 52876,
                     "name": "uint8",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1387:5:21",
+                    "src": "1387:5:74",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint8",
                       "typeString": "uint8"
@@ -1142,12 +1142,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 2023,
+                  "id": 52879,
                   "mutability": "mutable",
                   "name": "r",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2028,
-                  "src": "1404:9:21",
+                  "scope": 52884,
+                  "src": "1404:9:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1155,10 +1155,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2022,
+                    "id": 52878,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1404:7:21",
+                    "src": "1404:7:74",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -1168,12 +1168,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 2025,
+                  "id": 52881,
                   "mutability": "mutable",
                   "name": "s",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2028,
-                  "src": "1423:9:21",
+                  "scope": 52884,
+                  "src": "1423:9:74",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -1181,10 +1181,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2024,
+                    "id": 52880,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "1423:7:21",
+                    "src": "1423:7:74",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -1193,15 +1193,15 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "1301:137:21"
+              "src": "1301:137:74"
             },
             "returnParameters": {
-              "id": 2027,
+              "id": 52883,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "1455:0:21"
+              "src": "1455:0:74"
             },
-            "scope": 2029,
+            "scope": 52885,
             "stateMutability": "payable",
             "virtual": false,
             "visibility": "external"
@@ -1211,43 +1211,43 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 1999,
+              "id": 52855,
               "name": "IERC721",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 205,
-              "src": "282:7:21",
+              "referencedDeclaration": 41945,
+              "src": "282:7:74",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_IERC721_$205",
+                "typeIdentifier": "t_contract$_IERC721_$41945",
                 "typeString": "contract IERC721"
               }
             },
-            "id": 2000,
+            "id": 52856,
             "nodeType": "InheritanceSpecifier",
-            "src": "282:7:21"
+            "src": "282:7:74"
           }
         ],
         "contractDependencies": [
-          11,
-          205
+          40453,
+          41945
         ],
         "contractKind": "interface",
         "documentation": {
-          "id": 1998,
+          "id": 52854,
           "nodeType": "StructuredDocumentation",
-          "src": "131:124:21",
+          "src": "131:124:74",
           "text": "@title ERC721 with permit\n @notice Extension to ERC721 that includes a permit function for signature based approvals"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          2029,
-          205,
-          11
+          52885,
+          41945,
+          40453
         ],
         "name": "IERC721Permit",
-        "scope": 2030
+        "scope": 52886
       }
     ],
     "license": "GPL-2.0-or-later"
   },
-  "id": 21
+  "id": 74
 }

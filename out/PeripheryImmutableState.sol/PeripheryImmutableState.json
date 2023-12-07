@@ -131,22 +131,22 @@
   },
   "ast": {
     "absolutePath": "lib/v3-periphery/contracts/base/PeripheryImmutableState.sol",
-    "id": 1785,
+    "id": 52362,
     "exportedSymbols": {
       "IPeripheryImmutableState": [
-        2240
+        53126
       ],
       "PeripheryImmutableState": [
-        1784
+        52361
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "45:529:19",
+    "src": "45:529:69",
     "nodes": [
       {
-        "id": 1755,
+        "id": 52332,
         "nodeType": "PragmaDirective",
-        "src": "45:23:19",
+        "src": "45:23:69",
         "nodes": [],
         "literals": [
           "solidity",
@@ -156,47 +156,47 @@
         ]
       },
       {
-        "id": 1756,
+        "id": 52333,
         "nodeType": "ImportDirective",
-        "src": "70:52:19",
+        "src": "70:52:69",
         "nodes": [],
         "absolutePath": "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
         "file": "../interfaces/IPeripheryImmutableState.sol",
-        "scope": 1785,
-        "sourceUnit": 2241,
+        "scope": 52362,
+        "sourceUnit": 53127,
         "symbolAliases": [],
         "unitAlias": ""
       },
       {
-        "id": 1784,
+        "id": 52361,
         "nodeType": "ContractDefinition",
-        "src": "207:366:19",
+        "src": "207:366:69",
         "nodes": [
           {
-            "id": 1763,
+            "id": 52340,
             "nodeType": "VariableDeclaration",
-            "src": "328:41:19",
+            "src": "328:41:69",
             "nodes": [],
             "baseFunctions": [
-              2233
+              53119
             ],
             "constant": false,
             "documentation": {
-              "id": 1760,
+              "id": 52337,
               "nodeType": "StructuredDocumentation",
-              "src": "283:40:19",
+              "src": "283:40:69",
               "text": "@inheritdoc IPeripheryImmutableState"
             },
             "functionSelector": "c45a0155",
             "mutability": "immutable",
             "name": "factory",
             "overrides": {
-              "id": 1762,
+              "id": 52339,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
-              "src": "353:8:19"
+              "src": "353:8:69"
             },
-            "scope": 1784,
+            "scope": 52361,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -204,10 +204,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 1761,
+              "id": 52338,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "328:7:19",
+              "src": "328:7:69",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -217,30 +217,30 @@
             "visibility": "public"
           },
           {
-            "id": 1767,
+            "id": 52344,
             "nodeType": "VariableDeclaration",
-            "src": "420:39:19",
+            "src": "420:39:69",
             "nodes": [],
             "baseFunctions": [
-              2239
+              53125
             ],
             "constant": false,
             "documentation": {
-              "id": 1764,
+              "id": 52341,
               "nodeType": "StructuredDocumentation",
-              "src": "375:40:19",
+              "src": "375:40:69",
               "text": "@inheritdoc IPeripheryImmutableState"
             },
             "functionSelector": "4aa4a4fc",
             "mutability": "immutable",
             "name": "WETH9",
             "overrides": {
-              "id": 1766,
+              "id": 52343,
               "nodeType": "OverrideSpecifier",
               "overrides": [],
-              "src": "445:8:19"
+              "src": "445:8:69"
             },
-            "scope": 1784,
+            "scope": 52361,
             "stateVariable": true,
             "storageLocation": "default",
             "typeDescriptions": {
@@ -248,10 +248,10 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 1765,
+              "id": 52342,
               "name": "address",
               "nodeType": "ElementaryTypeName",
-              "src": "420:7:19",
+              "src": "420:7:69",
               "stateMutability": "nonpayable",
               "typeDescriptions": {
                 "typeIdentifier": "t_address",
@@ -261,30 +261,30 @@
             "visibility": "public"
           },
           {
-            "id": 1783,
+            "id": 52360,
             "nodeType": "FunctionDefinition",
-            "src": "466:105:19",
+            "src": "466:105:69",
             "nodes": [],
             "body": {
-              "id": 1782,
+              "id": 52359,
               "nodeType": "Block",
-              "src": "512:59:19",
+              "src": "512:59:69",
               "nodes": [],
               "statements": [
                 {
                   "expression": {
-                    "id": 1776,
+                    "id": 52353,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 1774,
+                      "id": 52351,
                       "name": "factory",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1763,
-                      "src": "522:7:19",
+                      "referencedDeclaration": 52340,
+                      "src": "522:7:69",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
@@ -293,41 +293,41 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 1775,
+                      "id": 52352,
                       "name": "_factory",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1769,
-                      "src": "532:8:19",
+                      "referencedDeclaration": 52346,
+                      "src": "532:8:69",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
                       }
                     },
-                    "src": "522:18:19",
+                    "src": "522:18:69",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "id": 1777,
+                  "id": 52354,
                   "nodeType": "ExpressionStatement",
-                  "src": "522:18:19"
+                  "src": "522:18:69"
                 },
                 {
                   "expression": {
-                    "id": 1780,
+                    "id": 52357,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
-                      "id": 1778,
+                      "id": 52355,
                       "name": "WETH9",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1767,
-                      "src": "550:5:19",
+                      "referencedDeclaration": 52344,
+                      "src": "550:5:69",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
@@ -336,26 +336,26 @@
                     "nodeType": "Assignment",
                     "operator": "=",
                     "rightHandSide": {
-                      "id": 1779,
+                      "id": 52356,
                       "name": "_WETH9",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1771,
-                      "src": "558:6:19",
+                      "referencedDeclaration": 52348,
+                      "src": "558:6:69",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
                         "typeString": "address"
                       }
                     },
-                    "src": "550:14:19",
+                    "src": "550:14:69",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
                       "typeString": "address"
                     }
                   },
-                  "id": 1781,
+                  "id": 52358,
                   "nodeType": "ExpressionStatement",
-                  "src": "550:14:19"
+                  "src": "550:14:69"
                 }
               ]
             },
@@ -364,17 +364,17 @@
             "modifiers": [],
             "name": "",
             "parameters": {
-              "id": 1772,
+              "id": 52349,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1769,
+                  "id": 52346,
                   "mutability": "mutable",
                   "name": "_factory",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1783,
-                  "src": "478:16:19",
+                  "scope": 52360,
+                  "src": "478:16:69",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -382,10 +382,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1768,
+                    "id": 52345,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "478:7:19",
+                    "src": "478:7:69",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -396,12 +396,12 @@
                 },
                 {
                   "constant": false,
-                  "id": 1771,
+                  "id": 52348,
                   "mutability": "mutable",
                   "name": "_WETH9",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1783,
-                  "src": "496:14:19",
+                  "scope": 52360,
+                  "src": "496:14:69",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -409,10 +409,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1770,
+                    "id": 52347,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "496:7:19",
+                    "src": "496:7:69",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -422,15 +422,15 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "477:34:19"
+              "src": "477:34:69"
             },
             "returnParameters": {
-              "id": 1773,
+              "id": 52350,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "512:0:19"
+              "src": "512:0:69"
             },
-            "scope": 1784,
+            "scope": 52361,
             "stateMutability": "nonpayable",
             "virtual": false,
             "visibility": "internal"
@@ -440,41 +440,41 @@
         "baseContracts": [
           {
             "baseName": {
-              "id": 1758,
+              "id": 52335,
               "name": "IPeripheryImmutableState",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 2240,
-              "src": "252:24:19",
+              "referencedDeclaration": 53126,
+              "src": "252:24:69",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_IPeripheryImmutableState_$2240",
+                "typeIdentifier": "t_contract$_IPeripheryImmutableState_$53126",
                 "typeString": "contract IPeripheryImmutableState"
               }
             },
-            "id": 1759,
+            "id": 52336,
             "nodeType": "InheritanceSpecifier",
-            "src": "252:24:19"
+            "src": "252:24:69"
           }
         ],
         "contractDependencies": [
-          2240
+          53126
         ],
         "contractKind": "contract",
         "documentation": {
-          "id": 1757,
+          "id": 52334,
           "nodeType": "StructuredDocumentation",
-          "src": "124:83:19",
+          "src": "124:83:69",
           "text": "@title Immutable state\n @notice Immutable state used by periphery contracts"
         },
         "fullyImplemented": true,
         "linearizedBaseContracts": [
-          1784,
-          2240
+          52361,
+          53126
         ],
         "name": "PeripheryImmutableState",
-        "scope": 1785
+        "scope": 52362
       }
     ],
     "license": "GPL-2.0-or-later"
   },
-  "id": 19
+  "id": 69
 }

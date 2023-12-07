@@ -134,19 +134,19 @@
   },
   "ast": {
     "absolutePath": "lib/v3-periphery/contracts/interfaces/IPeripheryImmutableState.sol",
-    "id": 2241,
+    "id": 53127,
     "exportedSymbols": {
       "IPeripheryImmutableState": [
-        2240
+        53126
       ]
     },
     "nodeType": "SourceUnit",
-    "src": "45:374:23",
+    "src": "45:374:78",
     "nodes": [
       {
-        "id": 2226,
+        "id": 53112,
         "nodeType": "PragmaDirective",
-        "src": "45:24:23",
+        "src": "45:24:78",
         "nodes": [],
         "literals": [
           "solidity",
@@ -156,19 +156,19 @@
         ]
       },
       {
-        "id": 2240,
+        "id": 53126,
         "nodeType": "ContractDefinition",
-        "src": "162:256:23",
+        "src": "162:256:78",
         "nodes": [
           {
-            "id": 2233,
+            "id": 53119,
             "nodeType": "FunctionDefinition",
-            "src": "265:51:23",
+            "src": "265:51:78",
             "nodes": [],
             "documentation": {
-              "id": 2228,
+              "id": 53114,
               "nodeType": "StructuredDocumentation",
-              "src": "203:57:23",
+              "src": "203:57:78",
               "text": "@return Returns the address of the Uniswap V3 factory"
             },
             "functionSelector": "c45a0155",
@@ -177,23 +177,23 @@
             "modifiers": [],
             "name": "factory",
             "parameters": {
-              "id": 2229,
+              "id": 53115,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "281:2:23"
+              "src": "281:2:78"
             },
             "returnParameters": {
-              "id": 2232,
+              "id": 53118,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2231,
+                  "id": 53117,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2233,
-                  "src": "307:7:23",
+                  "scope": 53119,
+                  "src": "307:7:78",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -201,10 +201,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2230,
+                    "id": 53116,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "307:7:23",
+                    "src": "307:7:78",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -214,22 +214,22 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "306:9:23"
+              "src": "306:9:78"
             },
-            "scope": 2240,
+            "scope": 53126,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
           },
           {
-            "id": 2239,
+            "id": 53125,
             "nodeType": "FunctionDefinition",
-            "src": "367:49:23",
+            "src": "367:49:78",
             "nodes": [],
             "documentation": {
-              "id": 2234,
+              "id": 53120,
               "nodeType": "StructuredDocumentation",
-              "src": "322:40:23",
+              "src": "322:40:78",
               "text": "@return Returns the address of WETH9"
             },
             "functionSelector": "4aa4a4fc",
@@ -238,23 +238,23 @@
             "modifiers": [],
             "name": "WETH9",
             "parameters": {
-              "id": 2235,
+              "id": 53121,
               "nodeType": "ParameterList",
               "parameters": [],
-              "src": "381:2:23"
+              "src": "381:2:78"
             },
             "returnParameters": {
-              "id": 2238,
+              "id": 53124,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2237,
+                  "id": 53123,
                   "mutability": "mutable",
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2239,
-                  "src": "407:7:23",
+                  "scope": 53125,
+                  "src": "407:7:78",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -262,10 +262,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2236,
+                    "id": 53122,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "407:7:23",
+                    "src": "407:7:78",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -275,9 +275,9 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "406:9:23"
+              "src": "406:9:78"
             },
-            "scope": 2240,
+            "scope": 53126,
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
@@ -288,20 +288,20 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 2227,
+          "id": 53113,
           "nodeType": "StructuredDocumentation",
-          "src": "71:91:23",
+          "src": "71:91:78",
           "text": "@title Immutable state\n @notice Functions that return immutable state of the router"
         },
         "fullyImplemented": false,
         "linearizedBaseContracts": [
-          2240
+          53126
         ],
         "name": "IPeripheryImmutableState",
-        "scope": 2241
+        "scope": 53127
       }
     ],
     "license": "GPL-2.0-or-later"
   },
-  "id": 23
+  "id": 78
 }
