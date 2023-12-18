@@ -34,6 +34,13 @@ contract LiquidManager is IERC721Receiver {
         BUY,
         SELL
     }
+    event NewPositionMinted(
+        address owner,
+        address token0,
+        address token1,
+        uint256 amount,
+        uint256 timestamp
+    ); // uint14 closetick сразу расчитать закрытие для бэка
 
     Position public position;
 
@@ -77,6 +84,13 @@ contract LiquidManager is IERC721Receiver {
             token1: token1
         });
         strikes[tokenId] = strike;
+        emit NewPositionMinted(
+            deposits[tokenId].owner,
+            deposits[tokenId].token0,
+            deposits[tokenId].token1,
+            deposits[tokenId].liquidity,
+            block.timestamp
+        ); //может расчитать сразу для бэкаclosetick);
     }
 
     function mintNewPosition(
@@ -88,7 +102,7 @@ contract LiquidManager is IERC721Receiver {
         int24 _lowerTick,
         int24 _upperTick
     )
-        public
+        internal
         returns (
             uint256 tokenId,
             uint128 liquidity,
@@ -204,9 +218,9 @@ contract LiquidManager is IERC721Receiver {
         }
     }
 
-    function collectAllFees(
+    function _collectAllFees(
         uint256 tokenId
-    ) public returns (uint256 amount0, uint256 amount1) {
+    ) internal returns (uint256 amount0, uint256 amount1) {
         INonfungiblePositionManager.CollectParams
             memory params = INonfungiblePositionManager.CollectParams({
                 tokenId: tokenId,
@@ -220,14 +234,15 @@ contract LiquidManager is IERC721Receiver {
         _sendToOwner(tokenId, amount0, amount1);
     }
 
-    function checkPositionForClosure(
+    function _checkPositionForClosure(
         uint256 tokenId,
         address token0,
         address token1,
         uint24 fee
     ) internal returns (bool result) {
         takePoolInfo(token0, token1, fee);
-        if ((msg.sender == deposits[tokenId].owner) ||
+        if (
+            (msg.sender == deposits[tokenId].owner) ||
             (position == Position.BUY && strikes[tokenId] >= _currentTick) ||
             (position == Position.SELL && strike <= _currentTick)
         ) {
@@ -235,14 +250,15 @@ contract LiquidManager is IERC721Receiver {
         }
     }
 
-    function _decreaseLiquidity(
+    function decreaseLiquidity(
         uint256 tokenId,
         address token0,
         address token1,
         uint24 fee
     ) public returns (uint256 amount0, uint256 amount1) {
+        require(deposits[tokenId].liquidity != 0, "Need deposits");
         require(
-                checkPositionForClosure(tokenId, token0, token1, fee),
+            _checkPositionForClosure(tokenId, token0, token1, fee),
             "Not the owner or position is not opened for termination"
         );
 
@@ -262,7 +278,7 @@ contract LiquidManager is IERC721Receiver {
             params
         );
 
-        collectAllFees(tokenId);
+        _collectAllFees(tokenId);
     }
 
     function _sendToOwner(
@@ -306,5 +322,65 @@ contract LiquidManager is IERC721Receiver {
         _tickSpacing = IUniswapV3PoolImmutables(pool).tickSpacing();
         (, tick, , , , , ) = IUniswapV3Pool(pool).slot0();
         _currentTick = tick;
+    }
+
+    function getTickfromFrontPrice(
+        uint160 _price
+    ) external pure returns (int24) {
+        uint160 sqrtPriceX96 = sqrt(_price) * 2 ** 96;
+        // _sqrtPriceX96 расчитать на фронте или добавить корень uint160 sqrtPriceX96 = sqrt(_price)* 2**96;
+        return TickMath.getTickAtSqrtRatio(sqrtPriceX96);
+    }
+
+    function sqrt(uint256 a) internal pure returns (uint160) {
+        if (a == 0) {
+            return 0;
+        }
+        uint256 result = 1 << (log2(a) >> 1);
+        result = (result + a / result) >> 1;
+        result = (result + a / result) >> 1;
+        result = (result + a / result) >> 1;
+        result = (result + a / result) >> 1;
+        result = (result + a / result) >> 1;
+        result = (result + a / result) >> 1;
+        result = (result + a / result) >> 1;
+        return uint160(result < a / result ? result : a / result);
+    }
+
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        if (value >> 128 > 0) {
+            value >>= 128;
+            result += 128;
+        }
+        if (value >> 64 > 0) {
+            value >>= 64;
+            result += 64;
+        }
+        if (value >> 32 > 0) {
+            value >>= 32;
+            result += 32;
+        }
+        if (value >> 16 > 0) {
+            value >>= 16;
+            result += 16;
+        }
+        if (value >> 8 > 0) {
+            value >>= 8;
+            result += 8;
+        }
+        if (value >> 4 > 0) {
+            value >>= 4;
+            result += 4;
+        }
+        if (value >> 2 > 0) {
+            value >>= 2;
+            result += 2;
+        }
+        if (value >> 1 > 0) {
+            result += 1;
+        }
+
+        return result;
     }
 }
