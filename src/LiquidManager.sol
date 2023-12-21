@@ -197,11 +197,12 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
     ) public {
         takePoolInfo(_token1, _token2, _poolFee);
         strike = _price;
+        // strike = getTickfromFrontPrice(_price);
         if (_putOrCall) {
             // true - put, false - call
             position = Position.BUY;
             tick =
-                ((_currentTick + _tickSpacing) / _tickSpacing) *
+                ((_currentTick - _tickSpacing) / _tickSpacing) *
                 _tickSpacing;
             mintNewPosition(
                 _token1,
@@ -209,12 +210,12 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
                 _amount0ToMint,
                 _amount1ToMint,
                 _poolFee,
-                tick, //Lower Tick
-                strike // Upper Tick
+                strike, //Lower Tick
+                tick // Upper Tick
             );
         } else {
             tick =
-                ((_currentTick - _tickSpacing) / _tickSpacing) *
+                ((_currentTick + _tickSpacing) / _tickSpacing) *
                 _tickSpacing;
             position = Position.SELL;
             mintNewPosition(
@@ -223,8 +224,8 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
                 _amount0ToMint,
                 _amount1ToMint,
                 _poolFee,
-                strike, //Lower Tick
-                tick //Upper Tick
+                tick, //Lower Tick
+                strike //Upper Tick
             );
         }
     }
@@ -337,7 +338,7 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
 
     function getTickfromFrontPrice(
         uint160 _price
-    ) external pure returns (int24) {
+    ) internal pure returns (int24) {
         uint160 sqrtPriceX96 = sqrt(_price) * 2 ** 96;
         // _sqrtPriceX96 расчитать на фронте или добавить корень uint160 sqrtPriceX96 = sqrt(_price)* 2**96;
         return TickMath.getTickAtSqrtRatio(sqrtPriceX96);
