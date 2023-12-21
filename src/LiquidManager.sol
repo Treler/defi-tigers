@@ -12,10 +12,20 @@ import "../lib/v3-periphery/contracts/libraries/PoolAddress.sol";
 import "../lib/v3-periphery/contracts/NonfungiblePositionManager.sol";
 import {UniswapV3Pool} from "../lib/v3-core/contracts/UniswapV3Pool.sol";
 import "../lib/v3-core/contracts/interfaces/IERC20Minimal.sol";
+import {AutomationCompatibleInterface} from "./AutomationCompatibleInterface.sol";
+import {KeeperRegistrar2_0Interface} from "./KeeperRegistrar2_0Interface.sol";
+import {LinkTokenInterface} from "../lib/chainlink-brownie-contracts/contracts/src/v0.7/interfaces/LinkTokenInterface.sol";
+import '../lib/openzeppelin-contracts/contracts/utils/Strings.sol';
 
-contract LiquidManager is IERC721Receiver {
+contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
     NonfungiblePositionManager public constant nonfungiblePositionManager =
         NonfungiblePositionManager(0x1238536071E1c677A632429e3655c799b22cDA52);
+    KeeperRegistrar2_0Interface public constant keeperRegistrar =
+        KeeperRegistrar2_0Interface(0xb0E49c5D0d05cbc241d68c05BC5BA1d1B7B72976);
+    LinkTokenInterface public constant link =
+        LinkTokenInterface(0x779877A7B0D9E8603169DdbD7836e478b4624789);
+
+    
 
     int24 public _currentTick;
     int24 public _tickSpacing;
@@ -46,6 +56,7 @@ contract LiquidManager is IERC721Receiver {
 
     mapping(uint256 => Deposit) public deposits;
     mapping(uint256 => int24) public strikes;
+    mapping(uint256 => uint256) public jobs;
 
     function onERC721Received(
         address operator,
@@ -90,7 +101,7 @@ contract LiquidManager is IERC721Receiver {
             deposits[tokenId].token1,
             deposits[tokenId].liquidity,
             block.timestamp
-        ); //может расчитать сразу для бэкаclosetick);
+        ); //может расчитать сразу для бэка closetick);
     }
 
     function mintNewPosition(
@@ -151,7 +162,7 @@ contract LiquidManager is IERC721Receiver {
 
         (tokenId, liquidity, amount0, amount1) = nonfungiblePositionManager
             .mint(params);
-
+        job(tokenId, _token1, _token2, _poolFee);
         _createDeposit(msg.sender, tokenId);
 
         if (amount0 < _amount0ToMint) {
@@ -187,7 +198,7 @@ contract LiquidManager is IERC721Receiver {
         takePoolInfo(_token1, _token2, _poolFee);
         strike = _price;
         if (_putOrCall) {
-            // true - call, false - put
+            // true - put, false - call
             position = Position.BUY;
             tick =
                 ((_currentTick + _tickSpacing) / _tickSpacing) *
@@ -198,8 +209,8 @@ contract LiquidManager is IERC721Receiver {
                 _amount0ToMint,
                 _amount1ToMint,
                 _poolFee,
-                tick,
-                strike
+                tick, //Lower Tick
+                strike // Upper Tick
             );
         } else {
             tick =
@@ -212,8 +223,8 @@ contract LiquidManager is IERC721Receiver {
                 _amount0ToMint,
                 _amount1ToMint,
                 _poolFee,
-                strike,
-                tick
+                strike, //Lower Tick
+                tick //Upper Tick
             );
         }
     }
@@ -239,12 +250,12 @@ contract LiquidManager is IERC721Receiver {
         address token0,
         address token1,
         uint24 fee
-    ) internal returns (bool result) {
+    ) public returns (bool result) {
         takePoolInfo(token0, token1, fee);
         if (
             (msg.sender == deposits[tokenId].owner) ||
-            (position == Position.BUY && strikes[tokenId] >= _currentTick) ||
-            (position == Position.SELL && strike <= _currentTick)
+            (position == Position.BUY && _currentTick <= strikes[tokenId]) ||
+            (position == Position.SELL && _currentTick >= strikes[tokenId])
         ) {
             return true;
         }
@@ -382,5 +393,69 @@ contract LiquidManager is IERC721Receiver {
         }
 
         return result;
+    }
+
+    function jobRegistration(
+        KeeperRegistrar2_0Interface.RegistrationParams memory params
+    ) internal returns (uint256 upkeepID) {
+        link.approve(address(keeperRegistrar), params.amount);
+        upkeepID = keeperRegistrar.registerUpkeep(params);
+        if (upkeepID != 0) {
+            return upkeepID;
+        } else {
+            revert("auto-approve-disabled");
+        }
+    }
+
+    function job(
+        uint256 tokenId,
+        address token0,
+        address token1,
+        uint24 fee
+    ) internal {
+        require(link.balanceOf(address(this)) >= 0.1 ether, "Not enough LINK");
+
+        uint256 upkeepID = 0;
+
+        KeeperRegistrar2_0Interface.RegistrationParams
+            memory params = KeeperRegistrar2_0Interface.RegistrationParams({
+                name: string(Strings.toString(uint256(tokenId))),
+                encryptedEmail: abi.encode("0x"),
+                upkeepContract: address(this),
+                gasLimit: 500000,
+                adminAddress: 0x3B66e7a2C8147EA2f5FCf39613492774F361A0DF,
+                triggerType: 0,
+                checkData: abi.encode(tokenId, token0, token1, fee),
+                triggerConfig: abi.encode("0x"),
+                offchainConfig: abi.encode("0x"),
+                amount: 100000000000000000
+            });
+
+        upkeepID = jobRegistration(params);
+
+        jobs[tokenId] = upkeepID;
+    }
+
+    function checkUpkeep(
+        bytes calldata checkData
+    ) external override returns (bool upkeepNeeded, bytes memory performData) {
+        (uint256 tokenId, address token0, address token1, uint24 fee) = abi
+            .decode(checkData, (uint256, address, address, uint24));
+        (upkeepNeeded) = _checkPositionForClosure(tokenId, token0, token1, fee);
+        return (upkeepNeeded, checkData);
+    }
+
+    function performUpkeep(bytes calldata performData) external override {
+        (uint256 tokenId, address token0, address token1, uint24 fee) = abi
+            .decode(performData, (uint256, address, address, uint24));
+        bool upkeepNeeded = _checkPositionForClosure(
+            tokenId,
+            token0,
+            token1,
+            fee
+        );
+        if (upkeepNeeded) {
+            decreaseLiquidity(tokenId, token0, token1, fee);
+        }
     }
 }
