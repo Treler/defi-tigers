@@ -16,15 +16,17 @@ import {AutomationCompatibleInterface} from "./AutomationCompatibleInterface.sol
 import {KeeperRegistrar2_0Interface} from "./KeeperRegistrar2_0Interface.sol";
 import {LinkTokenInterface} from "../lib/chainlink-brownie-contracts/contracts/src/v0.7/interfaces/LinkTokenInterface.sol";
 import '../lib/openzeppelin-contracts/contracts/utils/Strings.sol';
+import {IUniswapV3Factory} from 'lib/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
 
 contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
-    NonfungiblePositionManager public constant nonfungiblePositionManager =
-        NonfungiblePositionManager(0x1238536071E1c677A632429e3655c799b22cDA52);
-    KeeperRegistrar2_0Interface public constant keeperRegistrar =
-        KeeperRegistrar2_0Interface(0xb0E49c5D0d05cbc241d68c05BC5BA1d1B7B72976);
-    LinkTokenInterface public constant link =
-        LinkTokenInterface(0x779877A7B0D9E8603169DdbD7836e478b4624789);
 
+   NonfungiblePositionManager public constant nonfungiblePositionManager =
+       NonfungiblePositionManager(0xC36442b4a4522E871399CD717aBDD847Ab11FE88);
+   KeeperRegistrar2_0Interface public constant keeperRegistrar =
+       KeeperRegistrar2_0Interface(0xb58E509b59538256854b2a223289160F83B23F92);
+   LinkTokenInterface public constant link =
+       LinkTokenInterface(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
+   IUniswapV3Factory public constant factory = IUniswapV3Factory(0x1F98431c8aD98523631AE4a59f267346ea31F984);
     
 
     int24 public _currentTick;
@@ -40,23 +42,25 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
         address token1;
     }
 
-    enum Position {
+    enum PositionOption {
         BUY,
         SELL
     }
+
     event NewPositionMinted(
         address owner,
         address token0,
         address token1,
         uint256 amount,
         uint256 timestamp
-    ); // uint14 closetick сразу расчитать закрытие для бэка
+    ); 
 
-    Position public position;
+    PositionOption public position;
 
     mapping(uint256 => Deposit) public deposits;
     mapping(uint256 => int24) public strikes;
     mapping(uint256 => uint256) public jobs;
+    mapping(uint256 => PositionOption) public positionOption;
 
     function onERC721Received(
         address operator,
@@ -87,21 +91,25 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
             ,
 
         ) = nonfungiblePositionManager.positions(tokenId);
-        // set the owner and data for position
+
         deposits[tokenId] = Deposit({
             owner: owner,
             liquidity: liquidity,
             token0: token0,
             token1: token1
         });
+
         strikes[tokenId] = strike;
+        positionOption[tokenId] = position;
+
+
         emit NewPositionMinted(
             deposits[tokenId].owner,
             deposits[tokenId].token0,
             deposits[tokenId].token1,
             deposits[tokenId].liquidity,
             block.timestamp
-        ); //может расчитать сразу для бэка closetick);
+        ); 
     }
 
     function mintNewPosition(
@@ -162,6 +170,7 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
 
         (tokenId, liquidity, amount0, amount1) = nonfungiblePositionManager
             .mint(params);
+
         job(tokenId, _token1, _token2, _poolFee);
         _createDeposit(msg.sender, tokenId);
 
@@ -193,14 +202,15 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
         uint256 _amount0ToMint,
         uint256 _amount1ToMint,
         uint24 _poolFee,
-        int24 _price
+        uint160 _price
     ) public {
         takePoolInfo(_token1, _token2, _poolFee);
-        strike = _price;
-        // strike = getTickfromFrontPrice(_price);
+        // strike = _price;
+        strike = (getTickfromFrontPrice(_price) / _tickSpacing) *
+                _tickSpacing;
         if (_putOrCall) {
             // true - put, false - call
-            position = Position.BUY;
+            position = PositionOption.BUY;
             tick =
                 ((_currentTick - _tickSpacing) / _tickSpacing) *
                 _tickSpacing;
@@ -217,7 +227,7 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
             tick =
                 ((_currentTick + _tickSpacing) / _tickSpacing) *
                 _tickSpacing;
-            position = Position.SELL;
+            position = PositionOption.SELL;
             mintNewPosition(
                 _token1,
                 _token2,
@@ -255,8 +265,8 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
         takePoolInfo(token0, token1, fee);
         if (
             (msg.sender == deposits[tokenId].owner) ||
-            (position == Position.BUY && _currentTick <= strikes[tokenId]) ||
-            (position == Position.SELL && _currentTick >= strikes[tokenId])
+            (positionOption[tokenId] == PositionOption.BUY && _currentTick <= strikes[tokenId]) ||
+            (positionOption[tokenId] == PositionOption.SELL && _currentTick >= strikes[tokenId])
         ) {
             return true;
         }
@@ -321,79 +331,27 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
     }
 
     function takePoolInfo(address token0, address token1, uint24 fee) public {
-        address factory = 0x0227628f3F023bb0B980b67D528571c95c6DaC1c;
 
-        PoolAddress.PoolKey memory key = PoolAddress.getPoolKey(
-            token0,
-            token1,
-            fee
-        );
-
-        pool = PoolAddress.computeAddress(factory, key);
+        pool = factory.getPool(token0, token1, fee);
 
         _tickSpacing = IUniswapV3PoolImmutables(pool).tickSpacing();
-        (, tick, , , , , ) = IUniswapV3Pool(pool).slot0();
+        ( , tick, , , , , ) = IUniswapV3Pool(pool).slot0();
         _currentTick = tick;
+    }
+
+    function getCurrentSqrtPriceX96(
+        address token0,
+        address token1,
+        uint24 fee
+    ) public view returns (uint160 currentSqrtPriceX96) {
+        address pool1 = factory.getPool(token0, token1, fee);
+        (currentSqrtPriceX96, , , , , , ) = IUniswapV3Pool(pool1).slot0();
     }
 
     function getTickfromFrontPrice(
         uint160 _price
-    ) internal pure returns (int24) {
-        uint160 sqrtPriceX96 = sqrt(_price) * 2 ** 96;
-        // _sqrtPriceX96 расчитать на фронте или добавить корень uint160 sqrtPriceX96 = sqrt(_price)* 2**96;
-        return TickMath.getTickAtSqrtRatio(sqrtPriceX96);
-    }
-
-    function sqrt(uint256 a) internal pure returns (uint160) {
-        if (a == 0) {
-            return 0;
-        }
-        uint256 result = 1 << (log2(a) >> 1);
-        result = (result + a / result) >> 1;
-        result = (result + a / result) >> 1;
-        result = (result + a / result) >> 1;
-        result = (result + a / result) >> 1;
-        result = (result + a / result) >> 1;
-        result = (result + a / result) >> 1;
-        result = (result + a / result) >> 1;
-        return uint160(result < a / result ? result : a / result);
-    }
-
-    function log2(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        if (value >> 128 > 0) {
-            value >>= 128;
-            result += 128;
-        }
-        if (value >> 64 > 0) {
-            value >>= 64;
-            result += 64;
-        }
-        if (value >> 32 > 0) {
-            value >>= 32;
-            result += 32;
-        }
-        if (value >> 16 > 0) {
-            value >>= 16;
-            result += 16;
-        }
-        if (value >> 8 > 0) {
-            value >>= 8;
-            result += 8;
-        }
-        if (value >> 4 > 0) {
-            value >>= 4;
-            result += 4;
-        }
-        if (value >> 2 > 0) {
-            value >>= 2;
-            result += 2;
-        }
-        if (value >> 1 > 0) {
-            result += 1;
-        }
-
-        return result;
+    ) public pure returns (int24) {
+        return TickMath.getTickAtSqrtRatio(_price);
     }
 
     function jobRegistration(
@@ -429,7 +387,7 @@ contract LiquidManager is IERC721Receiver, AutomationCompatibleInterface {
                 checkData: abi.encode(tokenId, token0, token1, fee),
                 triggerConfig: abi.encode("0x"),
                 offchainConfig: abi.encode("0x"),
-                amount: 100000000000000000
+                amount: 500000000000000000
             });
 
         upkeepID = jobRegistration(params);
